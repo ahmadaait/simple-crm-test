@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BaseResponseResource;
+use App\Http\Resources\UserResponseResource;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +59,7 @@ class CompanyController extends Controller
                     'company_id' => $company->id,
                     'role'      => 'manager'
                 ]);
+                $manager->assignRole('manager');
 
                 $employee = $company->users()->create([
                     'name'      => $request->name . ' Employee',
@@ -67,6 +68,7 @@ class CompanyController extends Controller
                     'company_id' => $company->id,
                     'role'      => 'employee'
                 ]);
+                $employee->assignRole('employee');
 
                 DB::commit();
                 return new BaseResponseResource(true, 'Data Company Berhasil Disimpan!', $company);
