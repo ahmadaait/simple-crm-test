@@ -13,11 +13,22 @@ class CompanyController extends Controller
 {
     public function index()
     {
+        $perPage = request()->perPage ?: 2;
+        $sort = request()->sort ?: 'created_at';
+        $order = request()->order ?: 'desc';
+
         $companies = Company::when(request()->search, function ($companies) {
             $companies = $companies->where('name', 'like', '%' . request()->search . '%');
-        })->with('roles')->latest()->paginate(5);
+        });
 
-        $companies->appends(['search' => request()->search]);
+        $companies = $companies->orderBy($sort, $order)->paginate($perPage);
+
+        $companies->appends([
+            'search' => request()->search,
+            'perPage' => $perPage,
+            'sort' => $sort,
+            'order' => $order
+        ]);
 
         return new BaseResponseResource(true, 'List Data Companies', $companies, 200);
     }

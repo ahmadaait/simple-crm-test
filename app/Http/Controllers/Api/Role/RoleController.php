@@ -17,11 +17,22 @@ class RoleController extends Controller
      */
     public function index()
     {
+        $perPage = request()->perPage ?: 2;
+        $sort = request()->sort ?: 'created_at';
+        $order = request()->order ?: 'desc';
+
         $roles = Role::when(request()->search, function ($roles) {
             $roles = $roles->where('name', 'like', '%' . request()->search . '%');
-        })->with('permissions')->latest()->paginate(5);
+        })->with('permissions');
 
-        $roles->appends(['search' => request()->search]);
+        $roles = $roles->orderBy($sort, $order)->paginate($perPage);
+
+        $roles->appends([
+            'search' => request()->search,
+            'perPage' => $perPage,
+            'sort' => $sort,
+            'order' => $order
+        ]);
 
         return new BaseResponseResource(true, 'List Data Roles', $roles, 200);
     }
