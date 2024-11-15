@@ -16,7 +16,7 @@
 
 ## Entity Relationship Diagram
 
-![Entity Relationship Diagram](public/erd.png)
+![ERD](./docs/ERD.jpg)
 
 ## How to run the project
 
@@ -24,20 +24,32 @@
     ````bash
     https://github.com/ahmadaait/simple-crm-test.git```
     ````
-2. Run the following command to install the dependencies
+2. Navigate to the project directory
+    ```bash
+    cd simple-crm-test
+    ```
+3. Run the following command to install the dependencies
     ```bash
      composer install
     ```
-3. Create a new database and add the database credentials to the `.env` file
-4. Run the following command to create the tables
+4. Create a new database and add the database credentials to the `.env` file
+5. Run the following command to generate the application key
+    ```bash
+    php artisan key:generate
+    ```
+6. Run the following command to generate the JWT secret key
+    ```bash
+    php artisan jwt:secret
+    ```
+7. Run the following command to create the tables
     ```bash
     php artisan migrate
     ```
-5. Run the following command to seed the database
+8. Run the following command to seed the database
     ```bash
      php artisan db:seed
     ```
-6. Run the following command to start the server
+9. Run the following command to start the server
     ```bash
     php artisan serve
     ```
