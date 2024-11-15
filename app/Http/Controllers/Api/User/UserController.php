@@ -70,6 +70,8 @@ class UserController extends Controller
             'email'    => 'required|unique:users',
             'password' => 'required|confirmed',
             'company_id' => 'nullable',
+            'phone'    => 'nullable',
+            'address'  => 'nullable',
             'roles'    => 'required'
         ]);
 
@@ -81,7 +83,9 @@ class UserController extends Controller
             'name'      => $request->name,
             'email'     => $request->email,
             'password'  => bcrypt($request->password),
-            'company_id' => $company_id
+            'company_id' => $company_id,
+            'phone'     => $request->phone,
+            'address'   => $request->address
         ]);
 
         $user->assignRole($request->roles);
@@ -131,7 +135,9 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name'     => 'required',
             'email'    => 'required|unique:users,email,' . $user->id,
-            'password' => 'confirmed'
+            'password' => 'confirmed',
+            'phone'    => 'nullable',
+            'address'  => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -142,12 +148,16 @@ class UserController extends Controller
             $user->update([
                 'name'      => $request->name,
                 'email'     => $request->email,
+                'phone'     => $request->phone,
+                'address'   => $request->address
             ]);
         } else {
             $user->update([
                 'name'      => $request->name,
                 'email'     => $request->email,
-                'password'  => bcrypt($request->password)
+                'password'  => bcrypt($request->password),
+                'phone'     => $request->phone,
+                'address'   => $request->address
             ]);
         }
 
