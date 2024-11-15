@@ -16,7 +16,7 @@
 
 ## Entity Relationship Diagram
 
-![ERD](/docs/ERD.png)
+![ERD](./docs/ERD.jpg)
 
 ## How to run the project
 
