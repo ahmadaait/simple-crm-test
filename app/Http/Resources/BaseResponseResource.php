@@ -8,6 +8,7 @@ class BaseResponseResource extends JsonResource
 {
     public $status;
     public $message;
+    public $code;
 
     /**
      * __construct
@@ -17,11 +18,12 @@ class BaseResponseResource extends JsonResource
      * @param  mixed $resource
      * @return void
      */
-    public function __construct($status, $message, $resource)
+    public function __construct($status, $message, $resource, $code = 200)
     {
         parent::__construct($resource);
         $this->status  = $status;
         $this->message = $message;
+        $this->code    = $code;
     }
 
     /**
@@ -37,5 +39,10 @@ class BaseResponseResource extends JsonResource
             'message'   => $this->message,
             'data'      => $this->resource
         ];
+    }
+
+    public function withResponse($request, $response)
+    {
+        $response->setStatusCode($this->code);
     }
 }

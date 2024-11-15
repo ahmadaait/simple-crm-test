@@ -16,13 +16,24 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        $perPage = request()->perPage ?: 2;
+        $sort = request()->sort ?: 'created_at';
+        $order = request()->order ?: 'desc';
+
         $permissions = Permission::when(request()->search, function ($permissions) {
             $permissions = $permissions->where('name', 'like', '%' . request()->search . '%');
-        })->latest()->paginate(5);
+        });
 
-        $permissions->appends(['search' => request()->search]);
+        $permissions = $permissions->orderBy($sort, $order)->paginate($perPage);
 
-        return new BaseResponseResource(true, 'List Data Permissions', $permissions);
+        $permissions->appends([
+            'search' => request()->search,
+            'perPage' => $perPage,
+            'sort' => $sort,
+            'order' => $order
+        ]);
+
+        return new BaseResponseResource(true, 'List Data Permissions', $permissions, 200);
     }
 
     /**
@@ -34,6 +45,6 @@ class PermissionController extends Controller
     {
         $permissions = Permission::latest()->get();
 
-        return new BaseResponseResource(true, 'List Data Permissions', $permissions);
+        return new BaseResponseResource(true, 'List Data Permissions', $permissions, 200);
     }
 }

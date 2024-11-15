@@ -28,9 +28,9 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:roles.index|roles.store|roles.update|roles.delete');
 
         Route::apiResource('/companies', App\Http\Controllers\Api\Company\CompanyController::class)
-            ->middleware('permission:companies.index|companies.create|companies.update|companies.delete');
+            ->middleware('permission:companies.index|companies.show|companies.create|companies.update|companies.delete');
 
         Route::apiResource('/users', App\Http\Controllers\Api\User\UserController::class)
-            ->middleware('permission:users.index|users.create|users.update|users.delete');
+            ->middleware('permission:users.index|users.show|users.create|users.update|users.delete');
     });
 });

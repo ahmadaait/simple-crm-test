@@ -17,13 +17,24 @@ class RoleController extends Controller
      */
     public function index()
     {
+        $perPage = request()->perPage ?: 2;
+        $sort = request()->sort ?: 'created_at';
+        $order = request()->order ?: 'desc';
+
         $roles = Role::when(request()->search, function ($roles) {
             $roles = $roles->where('name', 'like', '%' . request()->search . '%');
-        })->with('permissions')->latest()->paginate(5);
+        })->with('permissions');
 
-        $roles->appends(['search' => request()->search]);
+        $roles = $roles->orderBy($sort, $order)->paginate($perPage);
 
-        return new BaseResponseResource(true, 'List Data Roles', $roles);
+        $roles->appends([
+            'search' => request()->search,
+            'perPage' => $perPage,
+            'sort' => $sort,
+            'order' => $order
+        ]);
+
+        return new BaseResponseResource(true, 'List Data Roles', $roles, 200);
     }
 
     /**
@@ -50,10 +61,10 @@ class RoleController extends Controller
         $role->givePermissionTo($request->permissions);
 
         if ($role) {
-            return new BaseResponseResource(true, 'Data Role Berhasil Disimpan!', $role);
+            return new BaseResponseResource(true, 'Data Role successfully saved!', $role, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Role Gagal Disimpan!', null);
+        return new BaseResponseResource(false, 'Data Role failed to save!', null, 400);
     }
 
     /**
@@ -67,10 +78,10 @@ class RoleController extends Controller
         $role = Role::with('permissions')->findOrFail($id);
 
         if ($role) {
-            return new BaseResponseResource(true, 'Detail Data Role!', $role);
+            return new BaseResponseResource(true, 'Detail Data Role!', $role, 200);
         }
 
-        return new BaseResponseResource(false, 'Detail Data Role Tidak Ditemukan!', null);
+        return new BaseResponseResource(false, 'Detail Data Role Not Found!', null, 404);
     }
 
     /**
@@ -98,10 +109,10 @@ class RoleController extends Controller
         $role->syncPermissions($request->permissions);
 
         if ($role) {
-            return new BaseResponseResource(true, 'Data Role Berhasil Diupdate!', $role);
+            return new BaseResponseResource(true, 'Data Role updated successfully!', $role, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Role Gagal Diupdate!', null);
+        return new BaseResponseResource(false, 'Data Role failed to update!', null, 400);
     }
 
     /**
@@ -114,10 +125,10 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
         if ($role->delete()) {
-            return new BaseResponseResource(true, 'Data Role Berhasil Dihapus!', null);
+            return new BaseResponseResource(true, 'Data Role successfully deleted!', null, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Role Gagal Dihapus!', null);
+        return new BaseResponseResource(false, 'Data Role failed to delete!', null, 400);
     }
 
     /**
@@ -129,6 +140,6 @@ class RoleController extends Controller
     {
         $roles = Role::latest()->get();
 
-        return new BaseResponseResource(true, 'List Data Roles', $roles);
+        return new BaseResponseResource(true, 'List Data Roles', $roles, 200);
     }
 }

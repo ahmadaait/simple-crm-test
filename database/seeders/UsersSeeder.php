@@ -19,7 +19,9 @@ class UsersSeeder extends Seeder
         User::create([
             'name'      => 'Administrator',
             'email'     => 'admin@gmail.com',
-            'password'  => bcrypt('password')
+            'password'  => bcrypt('password'),
+            'phone'     => '08123456789',
+            'address'   => 'Jl. Raya No. 1',
         ]);
     }
 }

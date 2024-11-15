@@ -13,13 +13,24 @@ class CompanyController extends Controller
 {
     public function index()
     {
+        $perPage = request()->perPage ?: 2;
+        $sort = request()->sort ?: 'created_at';
+        $order = request()->order ?: 'desc';
+
         $companies = Company::when(request()->search, function ($companies) {
             $companies = $companies->where('name', 'like', '%' . request()->search . '%');
-        })->with('roles')->latest()->paginate(5);
+        });
 
-        $companies->appends(['search' => request()->search]);
+        $companies = $companies->orderBy($sort, $order)->paginate($perPage);
 
-        return new BaseResponseResource(true, 'List Data Companies', $companies);
+        $companies->appends([
+            'search' => request()->search,
+            'perPage' => $perPage,
+            'sort' => $sort,
+            'order' => $order
+        ]);
+
+        return new BaseResponseResource(true, 'List Data Companies', $companies, 200);
     }
 
     public function store(Request $request)
@@ -59,6 +70,7 @@ class CompanyController extends Controller
                     'company_id' => $company->id,
                     'role'      => 'manager'
                 ]);
+                $manager->assignRole('manager');
 
                 $employee = $company->users()->create([
                     'name'      => $request->name . ' Employee',
@@ -67,13 +79,14 @@ class CompanyController extends Controller
                     'company_id' => $company->id,
                     'role'      => 'employee'
                 ]);
+                $employee->assignRole('employee');
 
                 DB::commit();
-                return new BaseResponseResource(true, 'Data Company Berhasil Disimpan!', $company);
+                return new BaseResponseResource(true, 'Data Company successfully saved!', $company, 200);
             }
 
             DB::rollBack();
-            return new BaseResponseResource(false, 'Data Company Gagal Disimpan!', null);
+            return new BaseResponseResource(false, 'Data Company failed to save!', null, 400);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
@@ -85,10 +98,10 @@ class CompanyController extends Controller
         $company = Company::whereId($id)->first();
 
         if ($company) {
-            return new BaseResponseResource(true, 'Detail Data Company!', $company);
+            return new BaseResponseResource(true, 'Detail Data Company!', $company, 200);
         }
 
-        return new BaseResponseResource(false, 'Detail Data Company Tidak Ditemukan!', null);
+        return new BaseResponseResource(false, 'Detail Data Company Not Found!', null, 404);
     }
 
     public function update(Request $request, Company $company)
@@ -114,18 +127,18 @@ class CompanyController extends Controller
         ]);
 
         if ($company) {
-            return new BaseResponseResource(true, 'Data Company Berhasil Diupdate!', $company);
+            return new BaseResponseResource(true, 'Data Company successfully updated!', $company, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Company Gagal Diupdate!', null);
+        return new BaseResponseResource(false, 'Data Company failed to update!', null, 400);
     }
 
     public function destroy(Company $company)
     {
         if ($company->delete()) {
-            return new BaseResponseResource(true, 'Data Company Berhasil Dihapus!', null);
+            return new BaseResponseResource(true, 'Data Company successfully deleted!', null, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Company Gagal Dihapus!', null);
+        return new BaseResponseResource(false, 'Data Company failed to delete!', null, 400);
     }
 }
