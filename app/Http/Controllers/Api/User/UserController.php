@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResponseResource;
+use App\Http\Resources\BaseResponseResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -48,7 +48,7 @@ class UserController extends Controller
             'order' => $order
         ]);
 
-        return new UserResponseResource(true, 'List Data Users', $users, 200);
+        return new BaseResponseResource(true, 'List Data Users', $users, 200);
     }
 
     public function store(Request $request)
@@ -57,11 +57,11 @@ class UserController extends Controller
 
         if ($this->loggedInUser->hasRole('manager')) {
             if (in_array('manager', $request->roles)) {
-                return new UserResponseResource(false, 'Managers cannot create users with the role of manager!', null, 403);
+                return new BaseResponseResource(false, 'Managers cannot create users with the role of manager!', null, 403);
             }
 
             if ($this->loggedInUser->company_id !== $company_id) {
-                return new UserResponseResource(false, 'Managers can only create users within the same company!', null, 403);
+                return new BaseResponseResource(false, 'Managers can only create users within the same company!', null, 403);
             }
         }
 
@@ -87,10 +87,10 @@ class UserController extends Controller
         $user->assignRole($request->roles);
 
         if ($user) {
-            return new UserResponseResource(true, 'Data User Berhasil Disimpan!', $user, 201);
+            return new BaseResponseResource(true, 'Data User success saved!', $user, 201);
         }
 
-        return new UserResponseResource(false, 'Data User Gagal Disimpan!', null, 400);
+        return new BaseResponseResource(false, 'Data User failed to save!', null, 400);
     }
 
     public function show($id)
@@ -98,7 +98,7 @@ class UserController extends Controller
         $user = User::with('roles')->whereId($id)->first();
 
         if (!$user) {
-            return new UserResponseResource(false, 'Data User Tidak Ditemukan!', null, 404);
+            return new BaseResponseResource(false, 'Data User not found!', null, 404);
         }
 
         if ($this->loggedInUser->hasRole('manager')) {
@@ -106,25 +106,25 @@ class UserController extends Controller
                 $this->loggedInUser->company_id !== $user->company_id ||
                 (!$user->hasRole('manager') && !$user->hasRole('employee') && $this->loggedInUser->id !== $user->id)
             ) {
-                return new UserResponseResource(false, 'Managers can only view their own information, other managers, and employees within the same company.', null, 403);
+                return new BaseResponseResource(false, 'Managers can only view their own information, other managers, and employees within the same company.', null, 403);
             }
         } elseif ($this->loggedInUser->hasRole('employee')) {
             if (
                 $this->loggedInUser->company_id !== $user->company_id ||
                 (!$user->hasRole('employee') && $this->loggedInUser->id !== $user->id)
             ) {
-                return new UserResponseResource(false, 'Employees can only view their own information and other employees within the same company.', null, 403);
+                return new BaseResponseResource(false, 'Employees can only view their own information and other employees within the same company.', null, 403);
             }
         }
 
-        return new UserResponseResource(true, 'Detail Data User!', $user, 200);
+        return new BaseResponseResource(true, 'Detail Data User!', $user, 200);
     }
 
     public function update(Request $request, User $user)
     {
         if ($this->loggedInUser->hasRole('manager')) {
             if ($this->loggedInUser->company_id !== $user->company_id || ($this->loggedInUser->id !== $user->id && $user->hasRole('manager'))) {
-                return new UserResponseResource(false, 'Managers can only update their own information or employees\' information within the same company.', null, 403);
+                return new BaseResponseResource(false, 'Managers can only update their own information or employees\' information within the same company.', null, 403);
             }
         }
 
@@ -156,24 +156,24 @@ class UserController extends Controller
         }
 
         if ($user) {
-            return new UserResponseResource(true, 'Data User Berhasil Diupdate!', $user, 200);
+            return new BaseResponseResource(true, 'Data User success updated!', $user, 200);
         }
 
-        return new UserResponseResource(false, 'Data User Gagal Diupdate!', null, 400);
+        return new BaseResponseResource(false, 'Data User failed to update!', null, 400);
     }
 
     public function destroy(User $user)
     {
         if ($this->loggedInUser->hasRole('manager')) {
             if ($this->loggedInUser->company_id !== $user->company_id || ($this->loggedInUser->id !== $user->id && $user->hasRole('manager'))) {
-                return new UserResponseResource(false, 'Managers can only delete their own information or employees\' information within the same company.', null, 403);
+                return new BaseResponseResource(false, 'Managers can only delete their own information or employees\' information within the same company.', null, 403);
             }
         }
 
         if ($user->delete()) {
-            return new UserResponseResource(true, 'Data User Berhasil Dihapus!', null, 200);
+            return new BaseResponseResource(true, 'Data User success deleted!', null, 200);
         }
 
-        return new UserResponseResource(false, 'Data User Gagal Dihapus!', null, 400);
+        return new BaseResponseResource(false, 'Data User failed to delete!', null, 400);
     }
 }

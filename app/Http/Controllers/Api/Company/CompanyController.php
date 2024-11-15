@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResponseResource;
+use App\Http\Resources\BaseResponseResource;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +19,7 @@ class CompanyController extends Controller
 
         $companies->appends(['search' => request()->search]);
 
-        return new BaseResponseResource(true, 'List Data Companies', $companies);
+        return new BaseResponseResource(true, 'List Data Companies', $companies, 200);
     }
 
     public function store(Request $request)
@@ -71,11 +71,11 @@ class CompanyController extends Controller
                 $employee->assignRole('employee');
 
                 DB::commit();
-                return new BaseResponseResource(true, 'Data Company Berhasil Disimpan!', $company);
+                return new BaseResponseResource(true, 'Data Company successfully saved!', $company, 200);
             }
 
             DB::rollBack();
-            return new BaseResponseResource(false, 'Data Company Gagal Disimpan!', null);
+            return new BaseResponseResource(false, 'Data Company failed to save!', null, 400);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
@@ -87,10 +87,10 @@ class CompanyController extends Controller
         $company = Company::whereId($id)->first();
 
         if ($company) {
-            return new BaseResponseResource(true, 'Detail Data Company!', $company);
+            return new BaseResponseResource(true, 'Detail Data Company!', $company, 200);
         }
 
-        return new BaseResponseResource(false, 'Detail Data Company Tidak Ditemukan!', null);
+        return new BaseResponseResource(false, 'Detail Data Company Not Found!', null, 404);
     }
 
     public function update(Request $request, Company $company)
@@ -116,18 +116,18 @@ class CompanyController extends Controller
         ]);
 
         if ($company) {
-            return new BaseResponseResource(true, 'Data Company Berhasil Diupdate!', $company);
+            return new BaseResponseResource(true, 'Data Company successfully updated!', $company, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Company Gagal Diupdate!', null);
+        return new BaseResponseResource(false, 'Data Company failed to update!', null, 400);
     }
 
     public function destroy(Company $company)
     {
         if ($company->delete()) {
-            return new BaseResponseResource(true, 'Data Company Berhasil Dihapus!', null);
+            return new BaseResponseResource(true, 'Data Company successfully deleted!', null, 200);
         }
 
-        return new BaseResponseResource(false, 'Data Company Gagal Dihapus!', null);
+        return new BaseResponseResource(false, 'Data Company failed to delete!', null, 400);
     }
 }

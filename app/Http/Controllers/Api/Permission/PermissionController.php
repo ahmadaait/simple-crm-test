@@ -22,7 +22,7 @@ class PermissionController extends Controller
 
         $permissions->appends(['search' => request()->search]);
 
-        return new BaseResponseResource(true, 'List Data Permissions', $permissions);
+        return new BaseResponseResource(true, 'List Data Permissions', $permissions, 200);
     }
 
     /**
@@ -34,6 +34,6 @@ class PermissionController extends Controller
     {
         $permissions = Permission::latest()->get();
 
-        return new BaseResponseResource(true, 'List Data Permissions', $permissions);
+        return new BaseResponseResource(true, 'List Data Permissions', $permissions, 200);
     }
 }
